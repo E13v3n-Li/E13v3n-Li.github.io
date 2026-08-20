@@ -774,17 +774,17 @@ post:
     # Options: utterances | disqus | gitalk | valine | waline | changyan | livere | remark42 | twikoo | cusdis | giscus | discuss
     type: giscus
 
+  
   giscus:
-    enable: true
     repo: E13v3n-Li/E13v3n-Li.github.io
-    repo_id: R_kgDOT9Jklw
+    repo-id: R_kgDOT9Jklw
     category: Announcements
-    category_id: DIC_kwDOT9Jkl84DDyZo
+    category-id: DIC_kwDOT9Jkl84DDyZo
     mapping: pathname
     strict: 0
-    reactions_enabled: 1
-    emit_metadata: 0
-    input_position: bottom
+    reactions-enabled: 1
+    emit-metadata: 0
+    input-position: bottom
     theme: catppuccin_latte
     lang: zh-CN
 
@@ -1099,12 +1099,24 @@ links:
   # 评论插件
   # Comment plugin
   comments:
-    enable: false
+    enable: true
     # 指定的插件，需要同时设置对应插件的必要参数
     # The specified plugin needs to set the necessary parameters at the same time
     # Options: utterances | disqus | gitalk | valine | waline | changyan | livere | remark42 | twikoo | cusdis | giscus | discuss
-    type: disqus
+    type: giscus
 
+  giscus:
+    repo: E13v3n-Li/E13v3n-Li.github.io
+    repo-id: R_kgDOT9Jklw
+    category: Announcements
+    category-id: DIC_kwDOT9Jkl84DDyZo
+    mapping: pathname
+    strict: 0
+    reactions-enabled: 1
+    emit-metadata: 0
+    input-position: bottom
+    theme: catppuccin_latte
+    lang: zh-CN
 
 #---------------------------
 # 以下是配置 JS CSS 等静态资源的 URL 前缀，可以自定义成 CDN 地址，
