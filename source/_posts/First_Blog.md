@@ -1,5 +1,5 @@
 ---
-title: first
+title: First Blog
 date: 2026-08-19 15:38:53
 tags:
 ---
