@@ -774,20 +774,6 @@ post:
     # Options: utterances | disqus | gitalk | valine | waline | changyan | livere | remark42 | twikoo | cusdis | giscus | discuss
     type: giscus
 
-  
-  giscus:
-    repo: E13v3n-Li/E13v3n-Li.github.io
-    repo-id: R_kgDOT9Jklw
-    category: Announcements
-    category-id: DIC_kwDOT9Jkl84DDyZo
-    mapping: pathname
-    strict: 0
-    reactions-enabled: 1
-    emit-metadata: 0
-    input-position: bottom
-    theme: catppuccin_latte
-    lang: zh-CN
-
 #---------------------------
 # 评论插件
 # Comment plugins
@@ -931,16 +917,16 @@ cusdis:
 # Based on GitHub Discussions, similar to Utterances
 # See: https://giscus.app/
 giscus:
-  repo:
-  repo-id:
-  category:
-  category-id:
-  theme-light: light
-  theme-dark: dark
+  repo: E13v3n-Li/E13v3n-Li.github.io
+  repo-id: R_kgDOT9Jklw
+  category: Announcements
+  category-id: DIC_kwDOT9Jkl84DDyZo
   mapping: pathname
+  strict: 0
   reactions-enabled: 1
   emit-metadata: 0
-  input-position: top
+  input-position: bottom
+  theme: catppuccin_latte
   lang: zh-CN
 
 # Discuss
@@ -1104,19 +1090,6 @@ links:
     # The specified plugin needs to set the necessary parameters at the same time
     # Options: utterances | disqus | gitalk | valine | waline | changyan | livere | remark42 | twikoo | cusdis | giscus | discuss
     type: giscus
-
-  giscus:
-    repo: E13v3n-Li/E13v3n-Li.github.io
-    repo-id: R_kgDOT9Jklw
-    category: Announcements
-    category-id: DIC_kwDOT9Jkl84DDyZo
-    mapping: pathname
-    strict: 0
-    reactions-enabled: 1
-    emit-metadata: 0
-    input-position: bottom
-    theme: catppuccin_latte
-    lang: zh-CN
 
 #---------------------------
 # 以下是配置 JS CSS 等静态资源的 URL 前缀，可以自定义成 CDN 地址，
