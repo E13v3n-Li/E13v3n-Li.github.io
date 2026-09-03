@@ -6,6 +6,7 @@ categories:
   - 阅读笔记
 tags:
   - Agent
+typora-root-url: ./..
 ---
 
 ``````markdown
@@ -89,7 +90,7 @@ tags:
 
 ### 工具的种类
 
-![image-20260901192540407](E:\typora\typora-user-images\image-20260901192540407.png)
+![image-20260901192540407](/images/image-20260901192540407.png)
 
 ### 工具调用的流程
 
@@ -143,11 +144,25 @@ Harness是用来引导模型能够可靠执行任务，Harness应该同模型协
 
 调用LLM时的上下文由以下五个部分构成：
 
-- **系统提示词（System Prompt）**：
+- **系统提示词（System Prompt）**：由开发者编写，整个对话过程中保持不变。定义Agent的身份、权限和行为准则。
 - **工具定义（Tool Definitions）**：声明 Agent 可用工具的名称、功能描述和参数格式。
 - **用户消息（User Messages）**：来自用户的输入。
-- **模型回复（Assistant Messages）**：
-- **工具执行结果（Tool Results）**：
+- **模型回复（Assistant Messages）**：模型之前生成的回复，最多包含三个部分，即思考过程（reasoning）、文本内容（content）、工具调用请求（tool_calls）。
+- **工具执行结果（Tool Results）**：Agent框架执行工具后返回的结果。
+
+```markdown
+- 系统提示词中还会包含跨会话保存的用户记忆（用户偏好、历史行为、背景设定等个性化信息）
+- 没有工具定义，Agent就无法识别和调用任何工具。
+- 用户消息中还可能包含通过RAG检索引入的外部知识。（覆盖训练数据截至后的 信息 or 私有领域知识）
+- 模型回复的三个部分
+	- 思考过程，即内部思考链，保持思维连贯性和决策可解释性
+	- 文本内容，即对用户的回复
+	- 工具调用请求，即Agent采取行动的方式
+- 模型回复的三个部分不一定同时出现
+	- Agent决定调用工具时，通常只有reasoning + tool_calls
+	- Agent给出最终回答时，通常只有 reasoning + content
+- 工具执行结果是Agent下一步思考的依据，也可以使它从执行结果中学习、避免重复犯错
+```
 
 
 

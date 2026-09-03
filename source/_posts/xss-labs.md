@@ -48,11 +48,11 @@ echo "<h3 align=center>payload的长度:".strlen($str)."</h3>";
 
 ## level1
 
-![image-20260903185623506](E:\typora\typora-user-images\image-20260903185623506.png)
+![image-20260903185623506](/images/image-20260903185623506.png)
 
 当我们将url中的`name`改为`<script>alert(1)</script>`时，便触发了弹窗。由于xss-labs的前端代码会检测是否有弹窗，若有代码将会弹出`完成的不错！`字样，然后重定向到下一关。如下图
 
-![image-20260903190009601](E:\typora\typora-user-images\image-20260903190009601.png)
+![image-20260903190009601](/images/image-20260903190009601.png)
 
 
 
