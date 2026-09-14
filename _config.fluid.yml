@@ -1064,7 +1064,7 @@ links:
       title: "Yanami Security Lab",
       intro: "技术博客",
       link: "https://yanami-sec.github.io/",
-      avatar: "/flink/head.jpg"
+      avatar: "/flink_img/head.jpg"
     }
 
   # 当成员头像加载失败时，替换为指定图片
