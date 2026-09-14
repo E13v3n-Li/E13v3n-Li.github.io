@@ -1062,14 +1062,14 @@ links:
     #友链1
     - {
       title: "Yanami Security Lab",
-      intro: "技术博客",
+      intro: "友情链接",
       link: "https://yanami-sec.github.io/",
       avatar: "/img/head.jpg"
     }
     #友链2
     - {
-      title: "Yanami Security Lab",
-      intro: "技术博客",
+      title: "Haxo's Blog",
+      intro: "友情链接",
       link: "https://blog.haxo.top/",
       avatar: "/img/head1.jpg"
     }
