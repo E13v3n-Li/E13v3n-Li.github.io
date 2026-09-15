@@ -5,7 +5,8 @@ tags:
   - web
   - xss
   - xss-labs
-categories: 
+categories:
+  - web 
   - xss	
   - xss-labs
 ---

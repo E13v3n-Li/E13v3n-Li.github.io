@@ -3,10 +3,11 @@ title: pickle
 date: 2026-09-15 12:36:27
 tags:
   - web
+  - pickle
   - 学习笔记
 categories:
   - web	
-  - 学习笔记
+  - pickle
 ---
 
 # pickle模块简介
