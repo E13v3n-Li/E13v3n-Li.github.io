@@ -380,3 +380,66 @@ api的结构化消息需要被转换为模型可以理解的token流
 
 ### 原理与约束
 
+**复用机制**
+
+![image-20260916193444707](./images/image-20260916193444707.png)
+
+### KV Cache与Prompt Cache
+
+**KV Cache 是模型内部的机制**
+
+**Prompt Cache 则是推理引擎的优化**
+
+**Prompt Cache 的工作方式是：API 服务商对请求的前缀进行匹配，如果多次请求的前缀相同，就直接复用之前计算好的 KV Cache，而不需要重新计算这部分 token 的键值对。**
+
+
+
+## 提示工程
+
+**语气与风格：系统提示词的“人格”**：
+
+例如，`“You MUST answer concisely with fewer than 4 lines”（你必须简洁地回答，不超过 4 行）`
+
+在无法完成任务时要求 “keep your response to 1-2 sentences”（把回复控制在 1-2 句话），并且“不要解释为什么不能做某事”——这种设计避免了 Agent 陷入冗长的自我辩护。
+
+“NEVER do X” 比 “Please avoid doing X” 更能引起模型注意，但如果满篇都是这种大写单词，Model分不清哪条重要，会造成效果稀释。
+
+**结构化提示：系统提示词的“格式”**：
+
+LLM对结构化输入及其敏感。XML标签使用遵循层次化原则，标签名携带语义信息。
+
+例如，`<working_directory>`能直接告诉Model，这是工作目录的信息。
+
+**系统提示词的“组织方式”**
+
+**流程驱动 VS 规则堆砌**：
+
+如果只是给出零散规则的手册，没有流程图，也没有优先级说明，会造成`多条规则同时适用时该如何选择？规则未覆盖的情况又该如何处理？`的疑惑。
+
+而流程驱动的提示词，提供了清晰的标准操作流程（SOP）：
+
+```
+File Processing Standard Operating Procedure:
+
+Step 1: Validation
+   Check if file exists and is accessible
+   - If not found → log error and stop
+   ↓
+Step 2: Classification
+   Determine file type based on extension and content
+   ↓
+Step 3: Preprocessing
+   Config files → create backup
+   Large files (>1MB) → stream processing
+   ↓
+Step 4: Execution
+   Execute core processing logic based on file type
+   ↓
+Step 5: Verification
+   Ensure integrity of the processed file
+```
+
+能够让模型知道自己的位置、当前步骤的目标、完成后进入哪个步骤。同时，方便确定异常的处理方式。
+
+**业务规则细化：系统提示词的“内容”**
+
