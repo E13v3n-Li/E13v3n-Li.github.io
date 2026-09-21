@@ -17,7 +17,7 @@ categories:
 
 - shiro 能够实现身份验证、授权、加密和会话管理等功能
 
-![image-20260921143359241](./../images/image-20260921143359241.png)
+![image-20260921143359241](../images/image-20260921143359241.png)
 
 > Primary Concerns:
 >
