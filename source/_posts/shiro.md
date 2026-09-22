@@ -66,9 +66,71 @@ Shiro 550，即**CVE-2016-4437**，是Apache Shiro框架中一个因**硬编码A
 
 ### 环境搭建
 
-环境搭建部分看的这个blog的搭建过程：https://www.v0n.top/2022/03/09/Shiro%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0/
+用到了这个blog中提到的 `shirodemo`项目环境
+
+https://www.v0n.top/2022/03/09/Shiro%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0/
+
+`shirodemo`github地址为https://github.com/phith0n/JavaThings/tree/master/shirodemo
+
+然后我们下载 `Tomcat` 和 `Maven`，`Tomcat` 用来本地部署 `shirodemo` 项目，`Maven` 用来打包 `shirodemo` 成`war` 包，然后部署在 `Tomcat` 上。
+
+在`shirodemo`目录下用 `Maven` 打包
+
+```powershell
+PS D:\vscode_workspace\JavaThings-master\shirodemo> mvn clean package
+```
+
+![image-20260921201920994](./../images/image-20260921201920994.png)
+
+然后，再将 `target` 下打包好的 `war` 包和其他文件一并放在 `Tomcat\webapps` 目录下，接着在 `Tomcat\bin` 目录下点击运行 `startup.bat` or `Tomcat8.exe` ，浏览器访问 `http://localhost:8080/shirodemo/`即可。
 
 
 
 ### 过程分析
+
+从`AbstractRememberMeManager.java`入手，找到
+
+![image-20260922202635590](./../images/image-20260922202635590.png)
+
+这段代码的作用就是判断是否进行了 `AES` 加密，如果存在则先进行 `AES` 解密，解密就用到了硬编码的密钥，然后再对字节数组进行反序列化；如果不存在 `AES` 加密，那么直接进行反序列化。
+
+然后跟进到`DefaultSerializer.java` 中的 `deserialize`  
+
+![image-20260922203703945](./../images/image-20260922203703945.png)
+
+`readObject()` 进行执行了代码
+
+```markdown
+- 为什么readObject()可以执行代码？
+	- Java 原生序列化机制有个特点：在反序列化时，会自动调用对象的一些特殊方法。
+	- 攻击者可以找到一些类，它们的这些方法会执行某些操作。如果这些操作能被串联起来（gadget chain），最终就能执行任意命令。
+```
+
+
+
+既然找到了执行的位置，那么所用到的 `bytes` 来自哪里呢？
+
+来看 `AbstractRememberMeManager.java` ，找到
+
+![image-20260922205413771](./../images/image-20260922205413771.png)
+
+可以看到，通过 `getRememveredSerializedIdentity` 赋值给字节数组 `bytes`
+
+跟进到 `CookieRememberMeManager.java`， 找到如下图的位置，看一下 `getRememveredSerializedIdentity` 做了什么事情
+
+![image-20260922205547064](./../images/image-20260922205547064.png)
+
+主要是获得 `Cookie`， 然后对其进行一个 `base64` 的解码，然后返回字节数组。也就是上面我们说到的 `AbstractRememberMeManager.java`，返回的值赋给了 `bytes`。
+
+这里进行一个 `base64` 解码，主要是因为 `CookieRememberMeManager.java` 中，对 `Cookie` 的设置进行了 `base64` 编码，如下图所示
+
+![image-20260922210000733](./../images/image-20260922210000733.png)
+
+
+
+### 漏洞复现
+
+
+
+## 0x03 ~ Shiro
 
