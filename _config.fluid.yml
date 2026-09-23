@@ -18,11 +18,11 @@
 
 # 用于浏览器标签的图标
 # Icon for browser tab
-favicon: /img/63c0fdea2d4165d921418984e92f6486.jpg
+favicon: source/img/63c0fdea2d4165d921418984e92f6486.jpg
 
 # 用于苹果设备的图标
 # Icon for Apple touch
-apple_touch_icon: /img/63c0fdea2d4165d921418984e92f6486.jpg
+apple_touch_icon: source/img/63c0fdea2d4165d921418984e92f6486.jpg
 
 # 浏览器标签页中的标题分隔符，效果：文章名 - 站点名
 # Title separator in browser tab, eg: article - site
