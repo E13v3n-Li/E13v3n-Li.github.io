@@ -98,14 +98,17 @@ categories:
  from typing import List
  
  def split_into_chunks(doc_file: str) -> List[str]:
-     with open(doc_file, 'r', encoding = "UTF-8") as file:
-         content = file.read()
+     with open(doc_file, 'r', encoding = "UTF-8") as file:	#只读模式打开文件
+         content = file.read()	# 一次性把整个文件内容读成字符串
  
-     return [chunk for chunk in content.split("\n\n")]
+     return [chunk for chunk in content.split("\n\n")]	#按照两个连续换行符`\n\n`分割字符串
  
- chunks = split_into_chunks("doc.md")
+ chunks = split_into_chunks("doc.md")	#调用函数，值赋给chunks
  
+ # 同时获取索引 i 和每个文本块 chunk
  for i, chunk in enumerate(chunks):
+     # 格式化字符串
+     # [0] 第一段内容
      print(f"[{i}] {chunk}\n")
  ```
 
@@ -113,27 +116,33 @@ categories:
 
 ```python
 from sentence_transformers import SentenceTransformer
-
+# 加载预训练模型 shibing624/text2vec-base-chinese
 embedding_model = SentenceTransformer("shibing624/text2vec-base-chinese")
 
+# 将文本块转换成向量
 def embed_chunk(chunk: str) -> List[float]:
     embedding = embedding_model.encode(chunk, normalize_embeddings=True)
+    # 返回文本向量的列表
     return embedding.tolist()
 
 
 embedding = embed_chunk("测试内容")
-print(len(embedding))
-print(embedding)
+print(len(embedding))	# 打印向量维度
+print(embedding)	# 打印向量里的所有浮点数
 ```
 
 ```py
 import chromadb
 
+# 创建一个临时的 ChromaDB 客户端
 chromadb_client = chromadb.EphemeralClient()
+# 创建一个名为 default 的集合，存放文档、向量、ID
 chromadb_collection = chromadb_client.get_or_create_collection(name="default")
 
+# 批量保存文本块和文本向量
 def save_embeddings(chunks: List[str], embeddings: List[List[float]]) -> None:
-    for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
+    for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):	# zip把两个列表“拉链”在一起，每次取出一对 (chunk,embedding)
+        # 把一条数据加入 ChromaDB 集合
         chromadb_collection.add(
             documents=[chunk],
             embeddings=[embedding],
@@ -147,7 +156,9 @@ save_embeddings(chunks, embeddings)
 
 ```python
 def retrieve(query: str, top_k: int) -> List[str]:
+    # 把用户问题转成向量
     query_embedding = embed_chunk(query)
+    # 在 ChromaDB 集合中查询最相似的文本块
     results = chromadb_collection.query(
         query_embeddings=[query_embedding],
         n_results=top_k
@@ -157,6 +168,7 @@ def retrieve(query: str, top_k: int) -> List[str]:
 query = "哆啦A梦使用的3个秘密道具分别是什么？"
 retrieved_chunks = retrieve(query, 5)
 
+# 遍历召回结果并打印
 for i, chunk in enumerate(retrieved_chunks):
     print(f"[{i}] {chunk}\n")
 ```
@@ -167,14 +179,21 @@ for i, chunk in enumerate(retrieved_chunks):
 from sentence_transformers import CrossEncoder
 
 def rerank(query: str, retrieved_chunks: List[str], top_k: int) -> List[str]:
+    # 加载 cross-encoder/mmarco-mMiniLMv2-L12-H384-v1 模型
     cross_encoder = CrossEncoder('cross-encoder/mmarco-mMiniLMv2-L12-H384-v1')
+    # 构造 query 和每个候选文本块的配对列表
     pairs = [(query, chunk) for chunk in retrieved_chunks]
+    # 用 CrossEncoder 对每一对 (query,chunk)进行打分
     scores = cross_encoder.predict(pairs)
-
+	
+    # 把文本块和对应分数配对
     scored_chunks = list(zip(retrieved_chunks, scores))
+    # 分数从高到低排序
     scored_chunks.sort(key=lambda x: x[1], reverse=True)
 
+    # 去除排序后的文本块，并截取前 top_k 个
     return [chunk for chunk, _ in scored_chunks][:top_k]
+
 
 reranked_chunks = rerank(query, retrieved_chunks, 3)
 
