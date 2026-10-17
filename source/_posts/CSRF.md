@@ -102,9 +102,17 @@ if (empty($_SESSION['csrf_token'])) {
 ```php
 // 校验
 session_start();
-$token = $_POST['csrf_token'] ?? '';
-if (!hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
-    die('csrf detected');
+
+$expected = $_SESSION['csrf_token'] ?? '';
+$provided = $_POST['csrf_token'] ?? '';
+
+if (
+    $expected === '' ||
+    $provided === '' ||
+    !hash_equals($expected, $provided)
+) {
+    http_response_code(403);
+    exit('Invalid CSRF token');
 }
 ```
 
@@ -210,11 +218,11 @@ if ($origin !== '' && !in_array($origin, $allowed, true)) {
 Set-Cookie: session=abc123; SameSite=Strict; Secure; HttpOnly
 ```
 
-| 值       | 行为                                                      | 防御效果                         |
-| :------- | :-------------------------------------------------------- | :------------------------------- |
-| `Strict` | 任何跨站请求都不携带                                      | 最强，但外链跳转后首访会"未登录" |
-| `Lax`    | 跨站**顶级导航 GET** 携带，跨站 POST / img / fetch 不携带 | 现代浏览器默认，挡大多数 CSRF    |
-| `None`   | 所有请求都携带，必须配合 `Secure`                         | 等于不防                         |
+| 值       | 行为                                                         |
+| :------- | :----------------------------------------------------------- |
+| `Strict` | 通常只有同站上下文的请求会携带Cookie，跨站跳转体验可能受影响 |
+| `Lax`    | 跨站**顶级导航 GET** 携带，跨站 POST / img / fetch 不携带    |
+| `None`   | 不施加SameSite跨站限制，通常需要同时设置Secure，并不意味着系统的其他CSRF防护也失效 |
 
 ### 常见绕过
 
