@@ -30,9 +30,124 @@ categories:
 
 ![image-20260919170135644](../images/image-20260919170135644-1789808816973-1.png)
 
+# 0x03 ~ mini_ReAct
+
+```python
+# mini_react
+from openai import OpenAI
+import re
+
+client = OpenAI(
+    api_key = "",
+    base_url = "https://api.deepseek.com"
+)
+
+# 定义工具
+def get_weather(city: str) -> str:
+    '''模拟天气查询'''
+    simulate_db = {"北京":"晴，25℃","上海":"小雨，18℃","东京":"多云，20℃"}
+    return simulate_db.get(city.strip(), f"未找到{city}的天气数据")
 
 
-## 0x03 ~ ReAct 的结构化实现：Function Calling
+def calculate(expression: str) -> str:
+    '''计算数学表达式'''
+    try:
+        return str(eval(expression.strip()))
+    except Exception as e:
+        return f"计算错误: {e}"
+
+tools = {
+    "get_weather": get_weather,
+    "calculate": calculate
+}
+
+# 系统提示词
+SYSTEM_PROMPT = '''
+你是一个强大的 AI 助手，可以使用以下工具来回答问题：
+
+1. get_weather: 获取指定城市的天气和温度。输入参数应为城市名称，例如：北京
+2. calculate: 计算数学表达式。输入参数应为合法的 Python 数学表达式，例如：(25 * 2) + 10
+
+请严格按照以下格式进行推理和行动（每次只输出一步 Action，然后立刻停止）：
+
+Question: 用户提出的问题
+Thought: 思考我需要做什么来回答这个问题
+Action: 工具名称[输入参数]
+
+（注意：输出完 Action 后立即停止生成，等待系统返回 Observation！）
+当你收到 Observation 后，继续按照 Thought -> Action -> Observation 循环，直到你拥有足够的信息。
+一旦你明确了最终答案，请严格按以下格式输出：
+
+Thought: 我现在知道最终答案了
+Final Answer: 给用户的最终回答
+'''
+
+def react_agent(question: str,max_steps: int=5):
+    # 维护对话历史
+    messages = [
+        {"role": "system","content": SYSTEM_PROMPT},
+        {"role": "user","content": f"Question: {question}"}
+    ]
+
+    for step in range(1,max_steps+1):
+        print(f"\n---第{step}轮推理---")
+
+        response = client.chat.completions.create(
+            model = "deepseek-v4-flash",
+            messages = messages,
+            temperature = 0,
+            stop = ["Observation:"]
+        )
+
+        reply = response.choices[0].message.content.strip()
+        print(reply)
+
+        messages.append({"role":"assistant","content":reply})
+
+        if "Final Answer:" in reply:
+            final_answer = reply.split("Final Answer:")[-1].strip()
+            print(f"\n---任务完成--\n最终答案: {final_answer}")
+            return final_answer
+
+
+        match = re.search(r"Action:\s*(\w+)\[(.*?)\]", reply)
+        if match:
+            tool_name = match.group(1)
+            tool_arg = match.group(2)
+
+            if tool_name in tools:
+                observation = tools[tool_name](tool_arg)
+            else:
+                observation = f"错误: 找不到工具 {tool_name}"
+        else:
+            observation = "格式错误: 请严格输出 Action: 工具名[参数] 或 Final Answer:..."
+
+        messages.append({"role":"user","content":f"Observation: {observation}"})
+
+    print("\n超出最大步数限制，任务终止。")
+
+
+if __name__ == "__main__":
+    react_agent("北京现在的温度是多少")
+```
+
+```cmd
+---第1轮推理---
+Question: 北京现在的温度是多少
+Thought: 我需要获取北京当前的天气和温度信息。
+Action: get_weather[北京]
+
+---第2轮推理---
+Thought: 我现在知道最终答案了
+Final Answer: 北京现在天气晴，温度为25℃。
+
+---任务完成--
+最终答案: 北京现在天气晴，温度为25℃。
+```
+
+
+
+## 0x04 ~ ReAct 的结构化实现：Function Calling
 
 这里使用LangChain结构化实现，使用的是硅基流动中转站的模型
 
@@ -150,9 +265,9 @@ if __name__ == "__main__":
 
 
 
-## 0x04 ~ 代码执行流程
+## 0x05 ~ 代码执行流程
 
-以0x03的代码为例，其执行流程如下：
+以 **0x04** 的代码为例，其执行流程如下：
 
 > main()
 >  ├─ init_model()      创建模型
