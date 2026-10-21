@@ -5,6 +5,7 @@ tags:
   - AI Agent
   - RAG
 categories:
+  - AI Agent
   - RAG
   - Agentic RAG
 ---
