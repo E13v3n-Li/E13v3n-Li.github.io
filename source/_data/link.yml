@@ -1,0 +1,11 @@
+- class_name:
+  class_desc: 
+  link_list:
+    - name: yanami-sec's Blog
+      link: https://yanami-sec.github.io/
+      avatar: /img/head2.jpg
+      descr: ❤
+    - name: Haxo's Blog
+      link: https://blog.haxo.top/
+      avatar: /img/head1.jpg
+      descr: ❤
