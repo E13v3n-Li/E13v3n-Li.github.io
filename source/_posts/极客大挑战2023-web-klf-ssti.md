@@ -1,15 +1,14 @@
 ---
-layout: new
 title: 极客大挑战2023-web-klf_ssti
 date: 2026-10-20 22:01:28
 tags:
   - 刷题日记
   - web
-  -ssti
+  - ssti
 categories:
-  - 刷题日志
-  — web
-  _ ssti
+  - 刷题日记
+  - web
+  - ssti
 ---
 
 # 极客大挑战2023-web-klf_ssti
