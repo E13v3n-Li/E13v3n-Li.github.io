@@ -60,3 +60,29 @@
 [data-theme="dark"] #page-header.nav-fixed #nav {
   background: rgba(30, 30, 30, 0.6) !important;
 }
+
+/* ==========================================
+   5. 让归档、分类、标签、友链等页面的顶部背景透明
+   ========================================== */
+
+/* 针对没有设置顶部大图的页头 */
+#page-header.not-top-img {
+  background: transparent !important;
+}
+
+/* 清除页头自带的半透明遮罩层 */
+#page-header.not-top-img::before {
+  background: transparent !important;
+}
+
+/* 适配夜间模式 */
+[data-theme="dark"] #page-header.not-top-img {
+  background: transparent !important;
+}
+
+/* 可选：如果你想给这块透明区域也加上毛玻璃效果，让文字更清晰，可以加上这句 */
+/* 注意：如果不想要模糊效果，可以把下面这行删掉 */
+#page-header.not-top-img {
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}

@@ -64,16 +64,16 @@ avatar:
 disable_top_img: false
 
 # If the banner of page not setting, it will show the default_top_img
-default_top_img: 
+default_top_img: transparent
 
 # The banner image of index page
 index_img: /img/a93a40e622407ede93b8ecbad9edbf98.jpg
 
 # The banner image of archive page
-archive_img:
+archive_img: transparent
 
 # Note: tag page, not tags page
-tag_img:
+tag_img: transparent
 
 # The banner image of tag page, you can set the banner image for each tag
 # Format:
@@ -81,7 +81,7 @@ tag_img:
 tag_per_img:
 
 # Note: category page, not categories page
-category_img:
+category_img: transparent
 
 # The banner image of category page, you can set the banner image for each category
 # Format:
@@ -793,7 +793,7 @@ text_align_justify: false
 
 # Add a mask to the header and footer
 mask:
-  header: true
+  header: false
   footer: true
 
 # Loading Animation
