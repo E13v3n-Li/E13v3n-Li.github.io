@@ -1,0 +1,62 @@
+/* 页脚透明 */
+#footer {
+  background: transparent !important;
+}
+
+/* 页脚伪元素透明（针对遮罩层） */
+#footer::before {
+  background: transparent !important;
+}
+
+/* 夜间模式下的页脚遮罩透明 */
+[data-theme="dark"] #footer::before {
+  background: transparent !important;
+}
+
+/* ==========================================
+   1. 全局与卡片背景透明化 (使用 CSS 变量，最彻底)
+   ========================================== */
+:root {
+  /* --global-bg 控制全局最底层背景 */
+  --global-bg: rgba(255, 255, 255, 0) !important; 
+  /* --card-bg 控制首页文章卡片、侧边栏卡片的背景 */
+  --card-bg: rgba(255, 255, 255, 0.6) !important; 
+  /* 其他可能存在的白色背景 */
+  --sidebar-bg: rgba(255, 255, 255, 0.6) !important;
+  --post-bg: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* ==========================================
+   2. 添加毛玻璃效果 (让文字更清晰)
+   ========================================== */
+#recent-posts > .recent-post-item,
+.card-widget {
+  backdrop-filter: blur(10px) !important; 
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+/* 强制去掉卡片内部可能存在的遮罩层 */
+#recent-posts > .recent-post-item > .recent-post-info {
+  background: transparent !important;
+}
+
+/* ==========================================
+   3. 夜间模式适配 (防止夜间看不见)
+   ========================================== */
+[data-theme="dark"] {
+  --global-bg: rgba(0, 0, 0, 0) !important;
+  --card-bg: rgba(30, 30, 30, 0.6) !important;
+  --sidebar-bg: rgba(30, 30, 30, 0.6) !important;
+  --post-bg: rgba(30, 30, 30, 0.6) !important;
+}
+
+/* ==========================================
+   4. 让顶部导航栏也半透明 (可选)
+   ========================================== */
+#page-header.nav-fixed #nav {
+  background: rgba(255, 255, 255, 0.6) !important;
+  backdrop-filter: blur(10px) !important;
+}
+[data-theme="dark"] #page-header.nav-fixed #nav {
+  background: rgba(30, 30, 30, 0.6) !important;
+}
