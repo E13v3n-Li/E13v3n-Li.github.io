@@ -58,7 +58,7 @@ categories:
 
 在面对复杂问题时，`Agent` 会首先 ”思考“ 分析核心需求，来自主决定使用什么**关键词**有效获取信息（**Thought**）；然后 `Agent` 进行 ”行动“ 调用封装好的工具（**Action**）；在 ”观察“ 到初步结果后不会立即生成答案，而是会判断信息是否充分能够得到最终的答案（如果不够则会进行下一轮循环，提炼更精确的查询再次搜索，还可能调用其他工具辅助，直到收集到充分信息能够得到最终答案）(**Observation**)。
 
-即融入了 `ReAct` 模式，**Thought → Action → Observation**
+`Agentic RAG` 即融入了 `ReAct` 模式，**Thought → Action → Observation**
 
 ![image-20261021202909699](./../images/image-20261021202909699.png)
 
