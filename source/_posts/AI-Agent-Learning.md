@@ -1,15 +1,15 @@
 ---
 title: AI Agent Learning
-date: 2026-08-23 09:46:02
+date: 2026-10-23 09:46:02
 categories:
-  - Agent
   - 阅读笔记
+  - Agent
 tags:
   - Agent
-typora-root-url: ./..
 ---
 
 ``````markdown
+- 最初做笔记是在2026.8.23开始，时隔两个月于2026.10.23重启。
 - 本阅读笔记是根据《深入理解 AI Agent：设计原理与工程实践》（李博杰 著）此书来用于个人学习。
 - GitHub仓库：https://github.com/bojieli/ai-agent-book
 ``````
