@@ -259,4 +259,3 @@ https://victim.com/oauth/authorize?client_id=attacker&redirect_uri=...&state=...
 ```
 
 OAuth 授权接口本身是 GET 请求，`SameSite=Lax` 挡不住它，所以如果这个接口没做 CSRF 防护，攻击者可以诱导受害者点击链接，让受害者在不知情的情况下授权攻击者的应用。
-

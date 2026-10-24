@@ -47,9 +47,10 @@ code_blocks:
 # Formal:
 #   icon: link || the description || color
 social:
-  # fab fa-github: https://github.com/xxxxx || Github || '#24292e'
-  # fas fa-envelope: mailto:xxxxxx@gmail.com || Email || '#4a7dbe'
-
+  # fab fa-github: https://github.com/E13v3n-Li || Github || '#24292e'
+  # 添加下面这行 QQ 配置
+  fab fa-qq: tencent://message/?uin=360358796 || QQ || '#12B7F5'
+  fab fa-weixin: /img/wechat.jpg || 微信 || '#07C160'
 # --------------------------------------
 # Image Settings
 # --------------------------------------
