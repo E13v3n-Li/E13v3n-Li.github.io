@@ -68,7 +68,7 @@ disable_top_img: false
 default_top_img: transparent
 
 # The banner image of index page
-index_img: /img/a93a40e622407ede93b8ecbad9edbf98.jpg
+index_img: 
 
 # The banner image of archive page
 archive_img: transparent
